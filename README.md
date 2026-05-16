@@ -2,6 +2,13 @@
 
 QuickBill is a modern, high-performance retail Point-of-Sale (POS) and inventory management system designed for stationery and electronics stores. Built with a robust **Node.js/Express** backend and a stunning **React 19 (Vite)** frontend featuring a custom dark glassmorphism UI.
 
+## 🌐 Live Demo
+### Frontend (Vercel): https://quick-bill-point-of-sale-system-sc9v-c2alz0zcw.vercel.app
+### Backend API (Render): https://quickbill-point-of-sale-system-0c9q.onrender.com
+
+⚠️ Note: If the frontend takes a little time to load initially, first open the backend API link in your browser once and wait a few seconds.
+After the backend server wakes up, refresh the frontend and the app will work smoothly.
+
 ## ✨ Features
 
 - **🛡️ Role-Based Access Control**: Strict authorization separating "Owner/Admin" (full management access) and "Worker/Cashier" (restricted to POS billing and browsing).

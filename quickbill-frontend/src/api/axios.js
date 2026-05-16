@@ -1,23 +1,23 @@
-import axios from 'axios'
+import axios from "axios";
 
-const api = axios.create({ baseURL: '/api' })
+const api = axios.create({ baseURL: import.meta.env.VITE_API_URL });
 
-api.interceptors.request.use(cfg => {
-  const token = localStorage.getItem('qb_token')
-  if (token) cfg.headers.Authorization = `Bearer ${token}`
-  return cfg
-})
+api.interceptors.request.use((cfg) => {
+  const token = localStorage.getItem("qb_token");
+  if (token) cfg.headers.Authorization = `Bearer ${token}`;
+  return cfg;
+});
 
 api.interceptors.response.use(
-  r => r,
-  err => {
+  (r) => r,
+  (err) => {
     if (err.response?.status === 401) {
-      localStorage.removeItem('qb_token')
-      localStorage.removeItem('qb_user')
-      window.location.href = '/login'
+      localStorage.removeItem("qb_token");
+      localStorage.removeItem("qb_user");
+      window.location.href = "/login";
     }
-    return Promise.reject(err)
-  }
-)
+    return Promise.reject(err);
+  },
+);
 
-export default api
+export default api;

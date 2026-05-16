@@ -5,7 +5,11 @@ export default defineConfig({
   plugins: [react()],
   server: {
     proxy: {
-      "/api": "https://quickbill-point-of-sale-system-0c9q.onrender.com",
+      "/api": {
+        target: "https://quickbill-point-of-sale-system-0c9q.onrender.com",
+        changeOrigin: true,
+        secure: false,
+      },
     },
   },
 });

@@ -46,4 +46,5 @@ export const dashboardApi = {
   getRevenue:        (params) => api.get('/dashboard/revenue', { params }),
   getTopProducts:    (params) => api.get('/dashboard/top-products', { params }),
   getCategoryRevenue:()       => api.get('/dashboard/category-revenue'),
+  getInsights:       ()       => api.get('/dashboard/insights'),
 }

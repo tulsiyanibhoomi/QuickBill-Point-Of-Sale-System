@@ -11,5 +11,6 @@ router.get('/summary',          ctrl.getSummary);
 router.get('/revenue',          ctrl.getRevenueTrend);   // ?days=7
 router.get('/top-products',     ctrl.getTopProducts);    // ?limit=10
 router.get('/category-revenue', ctrl.getCategoryRevenue);
+router.get('/insights',         ctrl.getInsights);
 
 module.exports = router;

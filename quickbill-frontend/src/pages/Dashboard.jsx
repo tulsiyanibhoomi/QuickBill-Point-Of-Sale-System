@@ -18,6 +18,7 @@ import {
   AlertTriangle,
   Package,
   Tag,
+  Sparkles,
 } from "lucide-react";
 import toast from "react-hot-toast";
 import * as XLSX from "xlsx";
@@ -57,6 +58,8 @@ export default function Dashboard() {
   const [revenue, setRevenue] = useState([]);
   const [topProds, setTopProds] = useState([]);
   const [catRev, setCatRev] = useState([]);
+  const [insights, setInsights] = useState(null);
+  const [insightsLoading, setInsightsLoading] = useState(false);
   const [days, setDays] = useState(7);
   const [loading, setLoading] = useState(true);
 
@@ -83,10 +86,25 @@ export default function Dashboard() {
       );
       setTopProds(t.data.data);
       setCatRev(c.data.data);
+      
+      // Load insights independently
+      loadInsights();
     } catch {
       toast.error("Failed to load dashboard");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadInsights = async () => {
+    setInsightsLoading(true);
+    try {
+      const res = await dashboardApi.getInsights();
+      setInsights(res.data.data?.insight || null);
+    } catch {
+      console.error("Failed to load insights");
+    } finally {
+      setInsightsLoading(false);
     }
   };
 
@@ -194,6 +212,45 @@ export default function Dashboard() {
       </div>
 
       <div className="page-body flex flex-col gap-6">
+        {/* AI Insights */}
+        <div 
+          className="card" 
+          style={{ 
+            background: "linear-gradient(to right, rgba(59, 130, 246, 0.1), rgba(139, 92, 246, 0.1))",
+            border: "1px solid rgba(139, 92, 246, 0.2)",
+            position: "relative",
+            overflow: "hidden"
+          }}
+        >
+          <div style={{
+            position: "absolute",
+            top: "-20px",
+            right: "-20px",
+            opacity: 0.1,
+            color: "#8b5cf6"
+          }}>
+            <Sparkles size={120} />
+          </div>
+          <div className="flex items-center gap-2" style={{ marginBottom: "0.5rem", position: "relative", zIndex: 1 }}>
+            <Sparkles size={18} color="#8b5cf6" />
+            <h3 className="font-semibold" style={{ color: "#8b5cf6" }}>AI Business Insights</h3>
+          </div>
+          <div style={{ position: "relative", zIndex: 1 }}>
+            {insightsLoading ? (
+              <div className="flex gap-2 items-center text-sm text-muted">
+                 <div className="spinner" style={{ width: "16px", height: "16px", borderWidth: "2px", borderColor: "#8b5cf6", borderBottomColor: "transparent" }} />
+                 Analyzing latest store data...
+              </div>
+            ) : insights ? (
+              <p className="text-sm font-medium" style={{ lineHeight: "1.6", color: "var(--text-primary)" }}>
+                {insights}
+              </p>
+            ) : (
+              <p className="text-sm text-muted">Insights not available at the moment.</p>
+            )}
+          </div>
+        </div>
+
         {/* Stat cards */}
         <div
           className="grid-3"

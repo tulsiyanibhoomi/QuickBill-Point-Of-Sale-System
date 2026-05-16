@@ -42,7 +42,7 @@
 //   generateDescription,
 // };
 
-import OpenAI from "openai";
+const OpenAI = require("openai");
 
 const openrouter = new OpenAI({
   baseURL: "https://openrouter.ai/api/v1",
@@ -53,7 +53,7 @@ const openrouter = new OpenAI({
   },
 });
 
-export const generateDescription = async (type, name) => {
+const generateDescription = async (type, name) => {
   try {
     const prompt =
       type === "product"
@@ -75,4 +75,34 @@ export const generateDescription = async (type, name) => {
     console.error("Failed to generate description:", error.message);
     return null;
   }
+};
+
+const generateDashboardInsights = async (data) => {
+  console.log("HII");
+  try {
+    const prompt = `You are an expert retail business analyst. Analyze this daily summary data for a store and provide a concise, actionable 2-3 sentence insight. Do not use markdown. Keep it conversational but professional. Focus on total revenue, orders, top products, and alert about any specific low stock items if they exist. Data: ${JSON.stringify(data)}`;
+
+    const response = await openrouter.chat.completions.create({
+      model: "openai/gpt-oss-20b:free",
+      messages: [
+        {
+          role: "user",
+          content: prompt,
+        },
+      ],
+    });
+
+    return (
+      response.choices?.[0]?.message?.content?.trim() ||
+      "Insights are currently unavailable."
+    );
+  } catch (error) {
+    console.error("Failed to generate insights:", error.message);
+    return "Insights could not be generated at this time.";
+  }
+};
+
+module.exports = {
+  generateDescription,
+  generateDashboardInsights,
 };

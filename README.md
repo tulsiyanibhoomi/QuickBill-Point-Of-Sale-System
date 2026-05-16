@@ -102,19 +102,6 @@ QuickBill is a modern, high-performance retail Point-of-Sale (POS) and inventory
 
 ---
 
-## 🔑 Default Credentials (from Seed)
-
-After running `npm run seed`, you can log in to the frontend (`http://localhost:5173`) using:
-
-- **Owner / Admin**
-  - Username: `owner`
-  - Password: `owner@123`
-- **Worker / Cashier**
-  - Username: `worker`
-  - Password: `worker@123`
-
----
-
 ## 🧠 AI Auto-Descriptions
 
 To use the AI generation feature, simply install [Ollama](https://ollama.com/) on your machine and pull a model (e.g., `ollama run llama3`). Ensure the Ollama service is running.

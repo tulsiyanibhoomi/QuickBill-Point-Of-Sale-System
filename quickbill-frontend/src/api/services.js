@@ -19,12 +19,14 @@ export const productsApi = {
   create:  (d)      => api.post('/products', d),
   update:  (id, d)  => api.put(`/products/${id}`, d),
   remove:  (id)     => api.delete(`/products/${id}`),
+  suggestPrice: (d) => api.post('/products/suggest-price', d),
 }
 
 export const stockApi = {
   getMovements: (params) => api.get('/stock/movements', { params }),
   getLowStock:  ()       => api.get('/stock/low-stock'),
   adjust:       (d)      => api.post('/stock/adjust', d),
+  generateRestockEmail: (d) => api.post('/stock/restock-email', d),
 }
 
 export const ordersApi = {
@@ -39,6 +41,7 @@ export const invoicesApi = {
   getById:   (id)     => api.get(`/invoices/${id}`),
   getPdfData:(id)     => api.get(`/invoices/${id}/pdf-data`),
   getByNumber:(n)     => api.get(`/invoices/number/${n}`),
+  generatePromoSMS: (id) => api.get(`/invoices/${id}/promo-sms`),
 }
 
 export const dashboardApi = {

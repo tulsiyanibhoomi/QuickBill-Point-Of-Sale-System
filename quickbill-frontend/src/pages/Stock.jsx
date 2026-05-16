@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { stockApi, productsApi } from '../api/services'
 import toast from 'react-hot-toast'
-import { AlertTriangle, ArrowUpCircle, ArrowDownCircle, X, RefreshCw } from 'lucide-react'
+import { AlertTriangle, ArrowUpCircle, ArrowDownCircle, X, RefreshCw, Sparkles, Copy } from 'lucide-react'
 
 const TYPE_COLORS = { purchase:'badge-green', sale:'badge-blue', adjustment:'badge-yellow', damage:'badge-red', return:'badge-purple' }
 
@@ -16,6 +16,27 @@ export default function Stock() {
   const [modal,    setModal]    = useState(false)
   const [form,     setForm]     = useState({ product_id:'', type:'purchase', quantity_change:'', note:'' })
   const [saving,   setSaving]   = useState(false)
+  const [generatingEmail, setGeneratingEmail] = useState(false)
+  const [emailModal, setEmailModal] = useState(false)
+  const [emailDraft, setEmailDraft] = useState('')
+
+  const handleGenerateEmail = async () => {
+    if (lowStock.length === 0) return toast.error("No low stock items to restock!");
+    setGeneratingEmail(true);
+    try {
+      const res = await stockApi.generateRestockEmail({ products: lowStock });
+      if (res.data.data?.emailDraft) {
+        setEmailDraft(res.data.data.emailDraft);
+        setEmailModal(true);
+      } else {
+        toast.error("AI couldn't generate the email");
+      }
+    } catch {
+      toast.error("Failed to generate restock email");
+    } finally {
+      setGeneratingEmail(false);
+    }
+  };
 
   const loadMovements = async () => {
     setLoading(true)
@@ -99,6 +120,15 @@ export default function Stock() {
 
         {tab === 'low-stock' && (
           <div>
+            <div className="flex justify-between items-center mb-3">
+              <span className="text-sm font-medium text-muted">Items below minimum stock level</span>
+              {lowStock.length > 0 && (
+                <button className="btn btn-sm" style={{ background: '#8b5cf6', color: '#fff', border: 'none' }} onClick={handleGenerateEmail} disabled={generatingEmail}>
+                  {generatingEmail ? <span className="spinner" style={{ width:12, height:12, borderWidth:2, borderColor:'#fff', borderBottomColor:'transparent' }}/> : <Sparkles size={14}/>} 
+                  AI Supplier Email
+                </button>
+              )}
+            </div>
             {loading ? <div className="page-loader"><div className="spinner"/></div> : (
               lowStock.length === 0 ? (
                 <div className="empty-state card"><h3>✅ All products are well-stocked!</h3></div>
@@ -177,6 +207,31 @@ export default function Stock() {
                 <button type="submit" className="btn btn-primary" disabled={saving}>{saving?<span className="spinner"/>:'Apply Adjustment'}</button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {emailModal && (
+        <div className="modal-overlay" onClick={() => setEmailModal(false)}>
+          <div className="modal" onClick={e=>e.stopPropagation()} style={{ maxWidth: '600px', width: '90%' }}>
+            <div className="modal-header">
+              <span className="modal-title flex items-center gap-2" style={{ color: '#8b5cf6' }}><Sparkles size={18}/> AI Restock Email Draft</span>
+              <button className="btn-icon" onClick={() => setEmailModal(false)}><X size={16}/></button>
+            </div>
+            <div className="p-4" style={{ padding: '1rem' }}>
+               <textarea 
+                 value={emailDraft} 
+                 onChange={e=>setEmailDraft(e.target.value)} 
+                 rows={10} 
+                 style={{ width: '100%', padding: '0.75rem', borderRadius: 'var(--radius)', border: '1px solid var(--border-solid)', fontFamily: 'inherit', fontSize: '0.85rem', resize: 'vertical' }}
+               />
+            </div>
+            <div className="modal-footer" style={{ margin:0, padding: '1rem', borderTop: '1px solid var(--border-solid)' }}>
+              <button type="button" className="btn btn-secondary" onClick={() => setEmailModal(false)}>Close</button>
+              <button type="button" className="btn btn-primary flex items-center gap-2" onClick={() => { navigator.clipboard.writeText(emailDraft); toast.success('Copied to clipboard'); }}>
+                <Copy size={14}/> Copy to Clipboard
+              </button>
+            </div>
           </div>
         </div>
       )}

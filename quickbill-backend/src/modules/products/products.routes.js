@@ -11,6 +11,7 @@ router.get('/',    ctrl.getAll);
 router.get('/:id', ctrl.getById);
 
 // Only owner can CREATE / UPDATE / DELETE
+router.post('/suggest-price', requireRole('owner'), ctrl.suggestPrice);
 router.post('/',      requireRole('owner'), ctrl.createValidation, ctrl.create);
 router.put('/:id',    requireRole('owner'), ctrl.update);
 router.delete('/:id', requireRole('owner'), ctrl.remove);

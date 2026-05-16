@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { invoicesApi } from '../api/services'
 import toast from 'react-hot-toast'
-import { Printer, ArrowLeft, CheckCircle, XCircle } from 'lucide-react'
+import { Printer, ArrowLeft, CheckCircle, XCircle, Sparkles, MessageSquare, Copy, X } from 'lucide-react'
 
 const fmtRs = n => `₹${Number(n||0).toLocaleString('en-IN',{minimumFractionDigits:2})}`
 const fmtDt = d => new Date(d).toLocaleString('en-IN',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})
@@ -12,6 +12,9 @@ export default function InvoiceView() {
   const navigate = useNavigate()
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [generatingSMS, setGeneratingSMS] = useState(false)
+  const [smsModal, setSmsModal] = useState(false)
+  const [smsDraft, setSmsDraft] = useState('')
   const printRef = useRef()
 
   useEffect(() => { load() }, [id])
@@ -26,6 +29,23 @@ export default function InvoiceView() {
   }
 
   const doPrint = () => window.print()
+
+  const handleGenerateSMS = async () => {
+    setGeneratingSMS(true);
+    try {
+      const res = await invoicesApi.generatePromoSMS(id);
+      if (res.data.data?.smsDraft) {
+        setSmsDraft(res.data.data.smsDraft);
+        setSmsModal(true);
+      } else {
+        toast.error("AI couldn't generate the SMS");
+      }
+    } catch {
+      toast.error("Failed to generate SMS");
+    } finally {
+      setGeneratingSMS(false);
+    }
+  };
 
   if (loading) return <div className="page-loader" style={{ minHeight:'100vh' }}><div className="spinner spinner-lg"/></div>
   if (!data) return null
@@ -42,6 +62,9 @@ export default function InvoiceView() {
           {order_status==='completed' ? <CheckCircle size={13}/>:<XCircle size={13}/>}
           {order_status}
         </span>
+        <button className="btn" style={{ background: '#8b5cf6', color: '#fff', border: 'none' }} onClick={handleGenerateSMS} disabled={generatingSMS}>
+          {generatingSMS ? <span className="spinner" style={{ width:12, height:12, borderWidth:2, borderColor:'#fff', borderBottomColor:'transparent' }}/> : <Sparkles size={15}/>} AI Promo SMS
+        </button>
         <button className="btn btn-primary" onClick={doPrint}><Printer size={15}/> Print Invoice</button>
       </div>
 
@@ -147,6 +170,32 @@ export default function InvoiceView() {
           </div>
         </div>
       </div>
+
+      {smsModal && (
+        <div className="modal-overlay" onClick={() => setSmsModal(false)}>
+          <div className="modal" onClick={e=>e.stopPropagation()} style={{ maxWidth: '400px', width: '90%' }}>
+            <div className="modal-header">
+              <span className="modal-title flex items-center gap-2" style={{ color: '#8b5cf6' }}><MessageSquare size={18}/> AI Promo SMS Draft</span>
+              <button className="btn-icon" onClick={() => setSmsModal(false)}><X size={16}/></button>
+            </div>
+            <div className="p-4" style={{ padding: '1rem' }}>
+               <textarea 
+                 value={smsDraft} 
+                 onChange={e=>setSmsDraft(e.target.value)} 
+                 rows={5} 
+                 style={{ width: '100%', padding: '0.75rem', borderRadius: 'var(--radius)', border: '1px solid var(--border-solid)', fontFamily: 'inherit', fontSize: '0.85rem', resize: 'vertical' }}
+               />
+               <p className="text-xs text-muted mt-2">Copy and send this to your customer via WhatsApp or SMS to drive repeat visits!</p>
+            </div>
+            <div className="modal-footer" style={{ margin:0, padding: '1rem', borderTop: '1px solid var(--border-solid)' }}>
+              <button type="button" className="btn btn-secondary" onClick={() => setSmsModal(false)}>Close</button>
+              <button type="button" className="btn btn-primary flex items-center gap-2" onClick={() => { navigator.clipboard.writeText(smsDraft); toast.success('Copied to clipboard'); }}>
+                <Copy size={14}/> Copy
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

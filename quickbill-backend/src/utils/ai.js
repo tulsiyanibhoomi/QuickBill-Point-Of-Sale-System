@@ -78,7 +78,6 @@ const generateDescription = async (type, name) => {
 };
 
 const generateDashboardInsights = async (data) => {
-  console.log("HII");
   try {
     const prompt = `You are an expert retail business analyst. Analyze this daily summary data for a store and provide a concise, actionable 2-3 sentence insight. Do not use markdown. Keep it conversational but professional. Focus on total revenue, orders, top products, and alert about any specific low stock items if they exist. Data: ${JSON.stringify(data)}`;
 
@@ -102,7 +101,55 @@ const generateDashboardInsights = async (data) => {
   }
 };
 
+const suggestPrice = async (name, costPrice) => {
+  try {
+    const prompt = `You are a retail pricing expert. Suggest a competitive retail selling price for a product named "${name}" with a cost price of ${costPrice ? "₹" + costPrice : "unknown"}. Return ONLY the suggested numeric value (e.g. 199.00), no other text.`;
+    const response = await openrouter.chat.completions.create({
+      model: "openai/gpt-oss-20b:free",
+      messages: [{ role: "user", content: prompt }],
+    });
+    const content = response.choices?.[0]?.message?.content?.trim();
+    const match = content.match(/[\d.]+/);
+    return match ? match[0] : null;
+  } catch (error) {
+    console.error("Failed to suggest price:", error.message);
+    return null;
+  }
+};
+
+const generateRestockEmail = async (products) => {
+  try {
+    const prompt = `Write a professional, concise email draft to a supplier requesting a restock for the following low-stock items:\n${products.map((p) => `- ${p.name} (Current stock: ${p.quantity_in_stock}, Min required: ${p.min_stock_level})`).join("\n")}\nKeep it polite, short, and ready to send.`;
+    const response = await openrouter.chat.completions.create({
+      model: "openai/gpt-4o-mini",
+      messages: [{ role: "user", content: prompt }],
+    });
+    return response.choices?.[0]?.message?.content?.trim();
+  } catch (error) {
+    console.error("Failed to generate restock email:", error.message);
+    return null;
+  }
+};
+
+const generatePromoSMS = async (invoiceData) => {
+  try {
+    const itemsList = invoiceData.items.map((i) => i.product_name).join(", ");
+    const prompt = `Write a short, engaging promotional SMS/WhatsApp message thanking the customer (${invoiceData.customer.name}) for their recent purchase of ${itemsList} at ${invoiceData.store.name}, and give them a brief reason to return (like "Show this text for 5% off your next visit!"). Keep it fun but professional.`;
+    const response = await openrouter.chat.completions.create({
+      model: "openai/gpt-4o-mini",
+      messages: [{ role: "user", content: prompt }],
+    });
+    return response.choices?.[0]?.message?.content?.trim();
+  } catch (error) {
+    console.error("Failed to generate SMS:", error.message);
+    return null;
+  }
+};
+
 module.exports = {
   generateDescription,
   generateDashboardInsights,
+  suggestPrice,
+  generateRestockEmail,
+  generatePromoSMS,
 };

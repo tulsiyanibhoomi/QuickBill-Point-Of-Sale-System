@@ -1,5 +1,6 @@
 const svc         = require('./invoices.service');
 const ApiResponse = require('../../utils/ApiResponse');
+const ai          = require('../../utils/ai');
 
 const getAll = async (req, res, next) => {
   try {
@@ -30,4 +31,12 @@ const getPdfData = async (req, res, next) => {
   } catch (err) { next(err); }
 };
 
-module.exports = { getAll, getById, getByNumber, getPdfData };
+const generatePromoSMS = async (req, res, next) => {
+  try {
+    const data = await svc.getPdfData(req.params.id);
+    const smsDraft = await ai.generatePromoSMS(data);
+    return ApiResponse.success(res, { smsDraft }, 'Promo SMS generated');
+  } catch (err) { next(err); }
+};
+
+module.exports = { getAll, getById, getByNumber, getPdfData, generatePromoSMS };

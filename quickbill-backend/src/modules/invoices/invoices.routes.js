@@ -13,5 +13,6 @@ router.get('/', requireRole('owner'), ctrl.getAll);
 router.get('/number/:invoiceNumber', ctrl.getByNumber);
 router.get('/:id',                  ctrl.getById);
 router.get('/:id/pdf-data',         ctrl.getPdfData);
+router.get('/:id/promo-sms',        ctrl.generatePromoSMS);
 
 module.exports = router;

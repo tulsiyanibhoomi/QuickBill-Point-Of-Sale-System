@@ -9,5 +9,6 @@ router.use(authenticate, requireRole('owner')); // All stock routes: owner only
 router.get('/movements', ctrl.getMovements);
 router.get('/low-stock', ctrl.getLowStock);
 router.post('/adjust',   ctrl.adjustValidation, ctrl.adjustStock);
+router.post('/restock-email', ctrl.generateRestockEmail);
 
 module.exports = router;

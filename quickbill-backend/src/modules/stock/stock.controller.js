@@ -1,6 +1,7 @@
 const svc         = require('./stock.service');
 const ApiResponse = require('../../utils/ApiResponse');
 const ApiError    = require('../../utils/ApiError');
+const ai          = require('../../utils/ai');
 const { body, validationResult } = require('express-validator');
 
 const VALID_TYPES = ['purchase', 'adjustment', 'damage', 'return'];
@@ -44,4 +45,15 @@ const adjustStock = async (req, res, next) => {
   } catch (err) { next(err); }
 };
 
-module.exports = { adjustValidation, getMovements, getLowStock, adjustStock };
+const generateRestockEmail = async (req, res, next) => {
+  try {
+    const { products } = req.body;
+    if (!products || !Array.isArray(products) || products.length === 0) {
+      return res.status(400).json({ success: false, message: 'Products array is required' });
+    }
+    const emailDraft = await ai.generateRestockEmail(products);
+    return ApiResponse.success(res, { emailDraft }, 'Restock email generated');
+  } catch (err) { next(err); }
+};
+
+module.exports = { adjustValidation, getMovements, getLowStock, adjustStock, generateRestockEmail };

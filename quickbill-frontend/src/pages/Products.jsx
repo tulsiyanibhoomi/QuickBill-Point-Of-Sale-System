@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { productsApi, categoriesApi } from '../api/services'
 import toast from 'react-hot-toast'
-import { Plus, Search, Edit2, Trash2, X, Package, AlertTriangle } from 'lucide-react'
+import { Plus, Search, Edit2, Trash2, X, Package, AlertTriangle, Sparkles } from 'lucide-react'
 
 const EMPTY = { name:'', sku:'', barcode:'', category_id:'', description:'', unit:'piece', selling_price:'', cost_price:'', tax_rate:18, quantity_in_stock:0, min_stock_level:5 }
 
@@ -17,6 +17,7 @@ export default function Products() {
   const [editing,    setEditing]    = useState(null)
   const [form,       setForm]       = useState(EMPTY)
   const [saving,     setSaving]     = useState(false)
+  const [suggesting, setSuggesting] = useState(false)
 
   const loadProducts = async () => {
     setLoading(true)
@@ -49,6 +50,24 @@ export default function Products() {
     } catch (err) { toast.error(err.response?.data?.message || 'Save failed') }
     finally { setSaving(false) }
   }
+
+  const handleSuggestPrice = async () => {
+    if (!form.name) return toast.error("Please enter a product name first");
+    setSuggesting(true);
+    try {
+      const res = await productsApi.suggestPrice({ name: form.name, cost_price: form.cost_price });
+      if (res.data.data?.price) {
+        setForm(f => ({ ...f, selling_price: res.data.data.price }));
+        toast.success("AI suggested a price!");
+      } else {
+        toast.error("AI couldn't suggest a price");
+      }
+    } catch {
+      toast.error("Failed to suggest price");
+    } finally {
+      setSuggesting(false);
+    }
+  };
 
   const remove = async (p) => {
     if (!confirm(`Deactivate "${p.name}"?`)) return
@@ -154,7 +173,15 @@ export default function Products() {
                     {['piece','pack','box','kg','litre','pair','set','dozen'].map(u=><option key={u}>{u}</option>)}
                   </select>
                 </div>
-                <div className="form-group"><label className="form-label">Selling Price (₹) *</label><input type="number" step="0.01" value={form.selling_price} onChange={e=>f('selling_price',e.target.value)} placeholder="0.00" /></div>
+                <div className="form-group">
+                  <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span>Selling Price (₹) *</span>
+                    <button type="button" onClick={handleSuggestPrice} disabled={suggesting} className="btn-icon" style={{ color: '#8b5cf6', padding: 0 }} title="AI Suggest Price">
+                      {suggesting ? <span className="spinner" style={{ width:12, height:12, borderWidth:2, borderColor:'#8b5cf6', borderBottomColor:'transparent' }} /> : <Sparkles size={14} />}
+                    </button>
+                  </label>
+                  <input type="number" step="0.01" value={form.selling_price} onChange={e=>f('selling_price',e.target.value)} placeholder="0.00" />
+                </div>
                 <div className="form-group"><label className="form-label">Cost Price (₹)</label><input type="number" step="0.01" value={form.cost_price} onChange={e=>f('cost_price',e.target.value)} placeholder="0.00" /></div>
                 <div className="form-group"><label className="form-label">GST Rate (%)</label><input type="number" step="0.01" value={form.tax_rate} onChange={e=>f('tax_rate',e.target.value)} /></div>
                 {!editing && <div className="form-group"><label className="form-label">Opening Stock</label><input type="number" value={form.quantity_in_stock} onChange={e=>f('quantity_in_stock',e.target.value)} /></div>}

@@ -1,6 +1,7 @@
 const svc         = require('./products.service');
 const ApiResponse = require('../../utils/ApiResponse');
 const ApiError    = require('../../utils/ApiError');
+const ai          = require('../../utils/ai');
 const { body, validationResult } = require('express-validator');
 
 const createValidation = [
@@ -53,4 +54,13 @@ const remove = async (req, res, next) => {
   } catch (err) { next(err); }
 };
 
-module.exports = { createValidation, getAll, getById, create, update, remove };
+const suggestPrice = async (req, res, next) => {
+  try {
+    const { name, cost_price } = req.body;
+    if (!name) return res.status(400).json({ success: false, message: 'Product name is required' });
+    const price = await ai.suggestPrice(name, cost_price);
+    return ApiResponse.success(res, { price }, 'Price suggested');
+  } catch (err) { next(err); }
+};
+
+module.exports = { createValidation, getAll, getById, create, update, remove, suggestPrice };

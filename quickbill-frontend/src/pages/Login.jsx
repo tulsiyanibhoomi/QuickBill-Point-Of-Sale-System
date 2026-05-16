@@ -74,9 +74,7 @@ export default function Login() {
                 fontSize: "1.75rem",
                 fontWeight: 800,
                 letterSpacing: "-0.03em",
-                background: "linear-gradient(135deg,#f1f5f9,#94a3b8)",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
+                color: "#0f172a",
               }}
             >
               QuickBill
@@ -105,6 +103,7 @@ export default function Login() {
               fontSize: "1.1rem",
               fontWeight: 700,
               marginBottom: "0.35rem",
+              textAlign: "center",
             }}
           >
             Sign In
@@ -114,6 +113,7 @@ export default function Login() {
               fontSize: "0.8rem",
               color: "var(--text-muted)",
               marginBottom: "1.5rem",
+              textAlign: "center",
             }}
           >
             Enter your credentials to continue

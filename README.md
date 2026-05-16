@@ -7,7 +7,7 @@ QuickBill is a modern, high-performance retail Point-of-Sale (POS) and inventory
 - **🛡️ Role-Based Access Control**: Strict authorization separating "Owner/Admin" (full management access) and "Worker/Cashier" (restricted to POS billing and browsing).
 - **🛒 Advanced POS Counter**: Lightning-fast barcode/SKU search, cart management, variable tax rates (GST), discount handling, and multiple payment methods (Cash, UPI, Card).
 - **📦 Inventory & Stock Management**: Real-time stock tracking, low-stock alerts, and an immutable audit log of all stock movements (purchases, sales, adjustments, damages).
-- **🤖 AI-Powered Descriptions (Ollama)**: Automatically generates catchy, professional product and category descriptions using your local Ollama LLM (e.g., Llama 3) when adding new inventory.
+- **🤖 AI-Powered Descriptions (Ollama)**: Automatically generates catchy, professional product and category descriptions using OpenAI free models (e.g., gpt-oss-120b:free) when adding new inventory.
 - **🧾 Automated Invoicing**: Transactional sequential invoice number generation (`QB-YYYYMMDD-XXXX`) with print-ready, beautifully formatted receipts.
 - **📊 Analytics Dashboard**: Comprehensive business insights including revenue trends (Recharts), category breakdowns, and top-selling products.
 - **⚛️ Atomic Transactions**: MySQL ACID-compliant transactions ensure inventory is only decremented when orders and invoices are successfully generated.
